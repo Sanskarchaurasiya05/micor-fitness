@@ -4,16 +4,18 @@ import com.fitness.userservice.dto.RegisterRequest;
 import com.fitness.userservice.dto.UserResponse;
 import com.fitness.userservice.model.User;
 import com.fitness.userservice.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-//@Slf4j
+@RequiredArgsConstructor
+@Slf4j
 public class UserService {
 
-    @Autowired
-    private UserRepository repository;
+
+    private final UserRepository repository;
 
     public UserResponse register(RegisterRequest request) {
 
@@ -68,8 +70,8 @@ public class UserService {
         return userResponse;
     }
 
-//    public Boolean existByUserId(String userId) {
-//        log.info("Calling User Validation API for userId: {}", userId);
-//        return repository.existsByKeycloakId(userId);
-//    }
+    public Boolean existByUserId(String userId) {
+        log.info("Calling User Validation API for userId: {}", userId);
+        return repository.existsById(userId);
+    }
 }
