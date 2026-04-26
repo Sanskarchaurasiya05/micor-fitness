@@ -1,15 +1,8 @@
 spring:
   application:
-    name: activityservice
-  data:
-    mongodb:
-      uri: mongodb://localhost:27017/AIactivity
-      database: AIactivity
+    name: activity-service
+  config:
+    import: optional:configserver:http://localhost:8888
 
-eureka:
-  client:
-    service-url:
-      defaultZone: http://localhost:8761/eureka/
 
-server:
-  port: 8082
+

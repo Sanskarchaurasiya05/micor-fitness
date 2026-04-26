@@ -6,7 +6,6 @@ import com.fitness.userservice.model.User;
 import com.fitness.userservice.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -23,7 +22,7 @@ public class UserService {
             User existingUser = repository.findByEmail(request.getEmail());
             UserResponse userResponse = new UserResponse();
             userResponse.setId(existingUser.getId());
-//            userResponse.setKeycloakId(existingUser.getKeycloakId());
+            userResponse.setKeycloakId(existingUser.getKeycloakId());
             userResponse.setPassword(existingUser.getPassword());
             userResponse.setEmail(existingUser.getEmail());
             userResponse.setFirstName(existingUser.getFirstName());
@@ -71,7 +70,7 @@ public class UserService {
     }
 
     public Boolean existByUserId(String userId) {
-        log.info("Calling User Validation API for userId: {}", userId);
-        return repository.existsById(userId);
+//        log.info("Calling User Validation API for userId: {}", userId);
+        return repository.existsByKeycloakId(userId);
     }
 }

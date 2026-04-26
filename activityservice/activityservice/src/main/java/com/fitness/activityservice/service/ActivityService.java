@@ -7,6 +7,8 @@ import com.fitness.activityservice.model.Activity;
 import com.fitness.activityservice.repository.ActivityRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,18 +19,18 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ActivityService {
     private final ActivityRepository activityRepository;
+    private final UserValidationService userValidationService;
+    private final KafkaTemplate<String , Activity> kafkaTemplate;
 
-//    private final RabbitTemplate rabbitTemplate;
+    @Value("${spring.kafka.topic.name}")
+    private String topicName;
 
-//    @Value("${rabbitmq.exchange.name}")
-//    private String exchange;
-//
-//    @Value("${rabbitmq.routing.key}")
-//    private String routingKey;
 
     public ActivityResponse trackActivity(ActivityRequest request) {
 
-
+  boolean isValidUser = userValidationService.validateUser(request.getUserId());
+  if(!isValidUser)
+      throw new RuntimeException("Invalid User");
 
         Activity activity = Activity.builder()
                 .userId(request.getUserId())
@@ -41,12 +43,12 @@ public class ActivityService {
 
         Activity savedActivity = activityRepository.save(activity);
 
-        // Publish to RabbitMQ for AI Processing
-//        try {
-//            rabbitTemplate.convertAndSend(exchange, routingKey, savedActivity);
-//        } catch(Exception e) {
-//            log.error("Failed to publish activity to RabbitMQ : ", e);
-//        }
+
+        try {
+           kafkaTemplate.send(topicName,savedActivity.getUserId(),savedActivity);
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
 
         return mapToResponse(savedActivity);
     }
@@ -77,4 +79,6 @@ public class ActivityService {
                 .map(this::mapToResponse)
                 .orElseThrow(() -> new RuntimeException("Activity not found with id: " + activityId));
     }
+
+
 }

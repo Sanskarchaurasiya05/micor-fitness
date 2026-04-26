@@ -1,15 +1,16 @@
 package com.fitness.userservice.dto;
+
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 
 @Data
 public class UserResponse {
     private String id;
+    private  String keycloakId;
     @NotBlank(message = "Email is required")
     @Email(message = "Invalid email format")
     private String email;

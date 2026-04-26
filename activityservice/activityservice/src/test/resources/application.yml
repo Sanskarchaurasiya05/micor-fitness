@@ -1,0 +1,17 @@
+spring:
+  config:
+    import: "optional:configserver:"
+  cloud:
+    config:
+      enabled: false
+  kafka:
+    bootstrap-servers: localhost:9092
+    topic:
+      name: test-topic
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/AIactivity
+      database: AIactivity
+
+server:
+  port: 8082
