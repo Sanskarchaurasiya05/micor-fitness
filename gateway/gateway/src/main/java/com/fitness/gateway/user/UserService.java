@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientException;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 
@@ -33,7 +32,7 @@ public class UserService {
     private final WebClient.Builder webClientBuilder;
 
     public Mono<Boolean> validateUser(String userId){
-        try{
+
           return webClientBuilder.build()
                     .get()
                     .uri("http://USERSERVICES/api/users/{userId}/validate", userId)
@@ -51,11 +50,24 @@ public class UserService {
 
 
 
-        } catch (WebClientException e){
-            e.printStackTrace();
-        }
+
     }
 
-    public Mono<Object> registerUser(RegisterRequest registerRequest) {
+    public Mono<Boolean> registerUser(RegisterRequest registerRequest) {
+        log.info("calling user registration API");
+        return webClientBuilder.build()
+                .post()
+                .uri("http://USERSERVICES/api/users/register")
+                .bodyValue(registerRequest)
+                .retrieve()
+                .bodyToMono(Boolean.class)
+                .onErrorResume(WebClientResponseException.class,e->{
+                    if(e.getStatusCode() == HttpStatus.BAD_REQUEST)
+                        return Mono.error(new RuntimeException("Bad request : "+e.getMessage()));
+
+                    return Mono.error(new RuntimeException("Unexpected error : " + e.getMessage()));
+
+                });
+
     }
 }
