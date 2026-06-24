@@ -12,30 +12,12 @@ import reactor.core.publisher.Mono;
 @Slf4j
 @RequiredArgsConstructor
 public class UserService {
-
-//    private final WebClient userServiceWebClient;
-//
-//    public boolean validateUser(String userId){
-//       try{
-//           return userServiceWebClient.get()
-//                   .uri("http://USERSERVICES/api/users/{userId}/validate",userId)
-//                   .retrieve()
-//                   .bodyToMono(Boolean.class)
-//                   .block();
-//       }catch (WebClientException e){
-//           e.printStackTrace();
-//       }
-//
-//       return false;
-//    }
-
-    private final WebClient.Builder webClientBuilder;
+    private final WebClient userServiceWebClient;
 
     public Mono<Boolean> validateUser(String userId){
 
-          return webClientBuilder.build()
-                    .get()
-                    .uri("http://USERSERVICES/api/users/{userId}/validate", userId)
+          return userServiceWebClient.get()
+                    .uri("/api/users/{userId}/validate", userId)
                     .retrieve()
                     .bodyToMono(Boolean.class)
                     .onErrorResume(WebClientResponseException.class,e->{
@@ -53,20 +35,18 @@ public class UserService {
 
     }
 
-    public Mono<Boolean> registerUser(RegisterRequest registerRequest) {
-        log.info("calling user registration API");
-        return webClientBuilder.build()
-                .post()
-                .uri("http://USERSERVICES/api/users/register")
+    public Mono<UserResponse> registerUser(RegisterRequest registerRequest) {
+        log.info("Calling User Registration for {}\", registerRequest.getEmail()");
+        return userServiceWebClient.post()
+                .uri("/api/users/register")
                 .bodyValue(registerRequest)
                 .retrieve()
-                .bodyToMono(Boolean.class)
-                .onErrorResume(WebClientResponseException.class,e->{
-                    if(e.getStatusCode() == HttpStatus.BAD_REQUEST)
-                        return Mono.error(new RuntimeException("Bad request : "+e.getMessage()));
+                .bodyToMono(UserResponse.class)
+                .onErrorResume(WebClientResponseException.class, e -> {
+                    if (e.getStatusCode() == HttpStatus.BAD_REQUEST)
+                        return Mono.error(new RuntimeException("Bad request : " + e.getMessage()));
 
                     return Mono.error(new RuntimeException("Unexpected error : " + e.getMessage()));
-
                 });
 
     }
