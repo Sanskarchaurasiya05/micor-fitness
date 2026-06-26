@@ -20,9 +20,14 @@ if(token){
 
   return (
    <Router>
-    <Button variant="contained" onClick={()=> {login()}}>
+    {!token ? ( <Button variant="contained" onClick={()=> {login()}}>
   Login
-</Button>
+</Button>):(
+  <div>
+    <pre>{JSON.stringify(tokenData, null, 2)}</pre>
+  </div>
+)}
+   
     </Router>
   )
 }
